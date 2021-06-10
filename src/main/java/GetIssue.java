@@ -1,9 +1,13 @@
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import parse.IssueList;
 
+import java.io.DataInput;
 import java.io.IOException;
 
 public interface GetIssue {
@@ -48,10 +52,19 @@ public interface GetIssue {
                 .method(GET, null)
                 .addHeader("Authorization", "Basic "+authToken)
                 .build();
-        System.out.println(request);
         Response response = client.newCall(request).execute();
+
+        //выводим статус
+        System.out.println("\n"+request);
         System.out.println(response);
         System.out.println(response.body().string());
+
+        //парсим на объекты
+        ObjectMapper mapper = new ObjectMapper();
+        String issuesInString = response.body().toString();
+
+        //ToDo дебажим парсинг (эталон JSONа в файлике тут: src/main/resources/exampleIssueList.json)
+        IssueList issueList = mapper.readValue(issuesInString, IssueList.class);
     }
 
 

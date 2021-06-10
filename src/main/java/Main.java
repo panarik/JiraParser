@@ -1,4 +1,7 @@
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import parse.IssueList;
+
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -23,6 +26,10 @@ public class Main implements GetIssue {
 //        client.getIssue(issueKey, authToken);
 //        client.getIssueHistory(issueKey, authToken);
         client.getIssues(authToken);
+
+
+
+
 
     }
 
