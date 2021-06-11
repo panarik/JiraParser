@@ -40,6 +40,11 @@ public class Main {
 
     public static void getIssues() throws IOException {
 
+        //запускаем запрос
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .build();
+
+
         issues = issueList.getIssues(); //получаем список тасок
 
 
@@ -47,20 +52,16 @@ public class Main {
 
             System.out.println(issues.get(i).toString());
 
+            Request request = new Request.Builder()
+                    .url(URL + ISSUEPATH + issues.get(i).getKey())
+                    .method(GET, null)
+                    .addHeader("Authorization", "Basic " + authToken)
+                    .build();
+            Response response = client.newCall(request).execute();
+
+            //выводим таску
+            System.out.println(response.body().string());
         }
-//
-//        //запускаем запрос
-//        OkHttpClient client = new OkHttpClient().newBuilder()
-//                .build();
-//        Request request = new Request.Builder()
-//                .url(URL + ISSUEPATH + "TEST-1")
-//                .method(GET, null)
-//                .addHeader("Authorization", "Basic " + authToken)
-//                .build();
-//        System.out.println(request);
-//        Response response = client.newCall(request).execute();
-//        System.out.println(response);
-//        System.out.println(response.body().string());
     }
 
     public void getIssueHistory(String issueKey) throws IOException {
