@@ -1,6 +1,4 @@
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import parse.IssueList;
+package com.github.panarik.jiraParser;
 
 import java.io.IOException;
 import java.util.Scanner;

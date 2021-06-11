@@ -3,3 +3,4 @@
 /target
 /build
 /.gradle
+src/main/resources/*.json

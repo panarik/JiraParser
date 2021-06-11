@@ -1,4 +1,4 @@
-package parse;
+package com.github.panarik.jiraParser.parse;
 
 public class IssuePreview {
 
@@ -37,5 +37,13 @@ public class IssuePreview {
 
     public void setKey(String key) {
         this.key = key;
+    }
+
+    @Override
+    public String toString() {
+        return "IssuePreview{" +
+                "id='" + id + '\'' +
+                ", key='" + key + '\'' +
+                '}';
     }
 }

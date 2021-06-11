@@ -1,11 +1,10 @@
-
-
+package com.github.panarik.jiraParser;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.panarik.jiraParser.parse.IssueList;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
-import parse.IssueList;
 
 import java.io.IOException;
 
@@ -62,8 +61,12 @@ public interface GetIssue {
 
         //парсим на объекты
         ObjectMapper mapper = new ObjectMapper();
-
         IssueList issueList = mapper.readValue(issuesInString, IssueList.class);
+        System.out.println("Поля объекта IssueList: "+issueList.toString());
+        System.out.println("Поля объектов IssuePreview: "+issueList.getIssues().toString());
+
+
+
     }
 
 

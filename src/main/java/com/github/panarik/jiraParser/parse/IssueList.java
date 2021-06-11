@@ -1,4 +1,4 @@
-package parse;
+package com.github.panarik.jiraParser.parse;
 
 import java.util.List;
 
@@ -48,5 +48,13 @@ public class IssueList {
 
     public void setIssues(List<IssuePreview> issues) {
         this.issues = issues;
+    }
+
+    @Override
+    public String toString() {
+        return "IssueList{" +
+                "total=" + total +
+                ", issues=" + issues +
+                '}';
     }
 }
