@@ -18,12 +18,12 @@ import java.util.Scanner;
 
 public class Main implements GetIssue {
 
+    //Поля запросов по API
     private static String GET = "GET"; //тип запроса
     private static String URL = "https://panariks.atlassian.net";
     private static String urlSearch = "https://panariks.atlassian.net/rest/api/2/search?jql=project=TEST&fields=issue&startAt=0&maxResults=8000";
     private static String URLGETTASK = "https://panariks.atlassian.net/rest/api/2/issue/";
     private static String authToken;
-    private static final String issueKey = "TEST-1";
 
     //JSON объекты и поля
     //Списки тасок
@@ -42,6 +42,7 @@ public class Main implements GetIssue {
         auth();
         searchIssues();
         getIssues();
+        getIssueHistory();
 
 //        //отправляет таски в ДБ
 //        try {
@@ -56,7 +57,6 @@ public class Main implements GetIssue {
     }
 
     private static void putIssuesOnDB() {
-
     }
 
     private static void disconnect() {
@@ -82,30 +82,24 @@ public class Main implements GetIssue {
     }
 
 
-    public static void getIssues() throws IOException, InterruptedException {
-        //формируем URL для запроса каждой таски
-        for (int i = 0; i < issuesListPreview.size(); i++) {
-            GetIssue.getIssue((URLGETTASK + issuesListPreview.get(i).getKey()), authToken); //формируем URL запроса таски с KEY каждой таски
+    private static void getIssues() throws IOException, InterruptedException {
+        //формируем URL запроса всех полей каждой таски
+        for (IssuePreview issuePreview : issuesListPreview) {
+            GetIssue.getIssue((URLGETTASK + issuePreview.getKey()), authToken); //формируем URL запроса таски с KEY каждой таски
             Thread.sleep(100);
         }
     }
 
-    public void getIssueHistory(String issueKey) throws IOException {
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        Request request = new Request.Builder()
-                .url(URL + "/rest/api/2/issue/" + issueKey + "/changelog?startAt=0&maxResults=100")
-                .method(GET, null)
-                .addHeader("Authorization", "Basic " + authToken)
-                .build();
-        System.out.println(request);
-        Response response = client.newCall(request).execute();
-        System.out.println(response);
-        System.out.println(response.body().string());
+    private static void getIssueHistory() throws IOException, InterruptedException {
+        //формируем URL запроса всех полей связанных с изменением каждой таски
+        for (IssuePreview issuePreview : issuesListPreview) {
+            GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски
+            Thread.sleep(100);
+        }
     }
 
-    public static void searchIssues() throws IOException {
-        //выводим тело ответа со списком тасок
+    private static void searchIssues() throws IOException {
+        //выводим тело ответа Жиры со списком тасок
         issuesJSON = GetIssue.getIssue(urlSearch, authToken);
         //парсим на объекты
         ObjectMapper mapper = new ObjectMapper();
