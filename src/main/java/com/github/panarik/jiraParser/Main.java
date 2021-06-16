@@ -8,6 +8,10 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Scanner;
 
@@ -24,16 +28,45 @@ public class Main {
     private static String issuesJSON; //JSON со списком тасок
     private static List<IssuePreview> issues; //список полей каждой таски
 
+    //DB поля клиента sqlite
+    private static Connection connection;
+    private static Statement statement;
+
     public static void main(String[] args) throws IOException {
 
         auth();
         searchIssues();
         getIssues();
-        putIssuesOnDB();
+
+        //отправляет таски в ДБ
+        try {
+            connectDB();
+            putIssuesOnDB();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            disconnect();
+        }
+
     }
 
     private static void putIssuesOnDB() {
+
+    }
+
+    private static void disconnect() {
+        try {
+            if (connection !=null) connection.close();
+            if (statement !=null) statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void connectDB() throws SQLException {
         //create DB
+        connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
+        statement = connection.createStatement();
 
     }
 
@@ -49,15 +82,13 @@ public class Main {
         //запускаем запрос
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-
-
         issues = issueList.getIssues(); //получаем список тасок
-
 
         for (int i = 0; i < issues.size(); i++) {
 
             System.out.println(issues.get(i).toString());
 
+            //запрашиваем каждую таску по API
             Request request = new Request.Builder()
                     .url(URL + ISSUEPATH + issues.get(i).getKey())
                     .method(GET, null)
