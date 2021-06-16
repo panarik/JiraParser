@@ -24,11 +24,9 @@ public interface GetIssue {
         String responseBodyJSON = response.body().string(); //выводим тело ответа
 
         //выводим статус
-        System.out.println("\n" + request);
-        System.out.println(response);
-        System.out.println("JSON response body:");
-        System.out.println(responseBodyJSON);
-
+        System.out.println("Request: " + request);
+        System.out.println("Request: " + response);
+        System.out.println("JSON response body:"+ responseBodyJSON);
 
         return responseBodyJSON;
     }

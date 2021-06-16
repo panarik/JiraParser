@@ -21,7 +21,7 @@ public class Main implements GetIssue {
     private static String GET = "GET"; //тип запроса
     private static String URL = "https://panariks.atlassian.net";
     private static String urlSearch = "https://panariks.atlassian.net/rest/api/2/search?jql=project=TEST&fields=issue&startAt=0&maxResults=8000";
-    private static String ISSUEPATH = "/rest/api/2/issue/";
+    private static String URLGETTASK = "https://panariks.atlassian.net/rest/api/2/issue/";
     private static String authToken;
     private static final String issueKey = "TEST-1";
 
@@ -29,7 +29,7 @@ public class Main implements GetIssue {
     //Списки тасок
     private static IssueList issuesList; //список тасок
     private static String issuesJSON; //JSON со списком тасок
-    private static List<IssuePreview> issuesPreview; //список полей каждой таски
+    private static List<IssuePreview> issuesListPreview; //список полей каждой таски
     //каждая таска
     /* */
 
@@ -41,7 +41,7 @@ public class Main implements GetIssue {
 
         auth();
         searchIssues();
-//        getIssues();
+        getIssues();
 
 //        //отправляет таски в ДБ
 //        try {
@@ -61,8 +61,8 @@ public class Main implements GetIssue {
 
     private static void disconnect() {
         try {
-            if (connection !=null) connection.close();
-            if (statement !=null) statement.close();
+            if (connection != null) connection.close();
+            if (statement != null) statement.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -83,26 +83,10 @@ public class Main implements GetIssue {
 
 
     public static void getIssues() throws IOException, InterruptedException {
-        //запускаем запрос
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .build();
-        issuesPreview = issuesList.getIssues(); //получаем список тасок
-
-        for (int i = 0; i < issuesPreview.size(); i++) {
-
-            System.out.println(issuesPreview.get(i).toString());
-
-            //запрашиваем каждую таску по API
-            Request request = new Request.Builder()
-                    .url(URL + ISSUEPATH + issuesPreview.get(i).getKey())
-                    .method(GET, null)
-                    .addHeader("Authorization", "Basic " + authToken)
-                    .build();
-            Response response = client.newCall(request).execute();
+        //формируем URL для запроса каждой таски
+        for (int i = 0; i < issuesListPreview.size(); i++) {
+            GetIssue.getIssue((URLGETTASK + issuesListPreview.get(i).getKey()), authToken); //формируем URL запроса таски с KEY каждой таски
             Thread.sleep(100);
-
-            //выводим таску
-            System.out.println(response.body().string());
         }
     }
 
@@ -110,7 +94,7 @@ public class Main implements GetIssue {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         Request request = new Request.Builder()
-                .url(URL + ISSUEPATH + issueKey + "/changelog?startAt=0&maxResults=100")
+                .url(URL + "/rest/api/2/issue/" + issueKey + "/changelog?startAt=0&maxResults=100")
                 .method(GET, null)
                 .addHeader("Authorization", "Basic " + authToken)
                 .build();
@@ -121,19 +105,16 @@ public class Main implements GetIssue {
     }
 
     public static void searchIssues() throws IOException {
-
         //выводим тело ответа со списком тасок
         issuesJSON = GetIssue.getIssue(urlSearch, authToken);
         //парсим на объекты
         ObjectMapper mapper = new ObjectMapper();
         issuesList = mapper.readValue(issuesJSON, IssueList.class); //список тасок
-        System.out.println("Поля объекта IssueList: " + issuesList.toString());
-        System.out.println("Поля объектов IssuePreview: " + issuesList.getIssues().toString());
+        issuesListPreview = issuesList.getIssues(); //массив со списком полей (id, key) для всех тасок
 
-
+        System.out.println("IssueList fields: " + issuesList.toString());
+        System.out.println("IssuePreview fields: " + issuesListPreview.toString());
     }
-
-
 
 
 }
