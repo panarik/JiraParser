@@ -29,6 +29,12 @@ public class Main {
         auth();
         searchIssues();
         getIssues();
+        putIssuesOnDB();
+    }
+
+    private static void putIssuesOnDB() {
+        //create DB
+
     }
 
     private static void auth() {
@@ -105,6 +111,8 @@ public class Main {
 
 
     }
+
+
 
 
 }

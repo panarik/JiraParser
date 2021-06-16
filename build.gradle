@@ -1,9 +1,20 @@
 plugins {
-    id 'java'
+    id 'java-library'
+}
+
+//для фиксации версии Java
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(15)
+    }
 }
 
 group 'com.github.panarik'
 version '0.0.1'
+
+//для отображения кириллицы
+compileJava.options.encoding = "UTF-8"
+compileTestJava.options.encoding = "UTF-8"
 
 repositories {
     mavenCentral()
