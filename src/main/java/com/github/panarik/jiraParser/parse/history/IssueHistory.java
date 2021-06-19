@@ -41,12 +41,12 @@ public class IssueHistory {
         this.total = total;
     }
 
-    public boolean isLast() {
+    public boolean getIsLast() {
         return isLast;
     }
 
-    public void setLast(boolean last) {
-        isLast = last;
+    public void setIsLast(boolean isLast) {
+        this.isLast = isLast;
     }
 
     public IssueHistoryValues getValues() {
@@ -57,6 +57,15 @@ public class IssueHistory {
         this.values = values;
     }
 
-
-
+    @Override
+    public String toString() {
+        return "IssueHistory{" +
+                "self='" + self + '\'' +
+                ", maxResults=" + maxResults +
+                ", startAt=" + startAt +
+                ", total=" + total +
+                ", isLast=" + isLast +
+                ", values=" + values +
+                '}';
+    }
 }

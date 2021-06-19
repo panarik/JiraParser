@@ -5,6 +5,7 @@ import com.github.panarik.jiraParser.api.GetIssue;
 import com.github.panarik.jiraParser.parse.IssueList;
 import com.github.panarik.jiraParser.parse.IssuePreview;
 import com.github.panarik.jiraParser.parse.Parser;
+import com.github.panarik.jiraParser.parse.history.IssueHistory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -30,6 +31,7 @@ public class Main implements GetIssue, Parser {
     private static List<IssuePreview> issuesListPreview; //список полей каждой таски
     //каждая таска (история изменения таски)
     private static String issueHistoryJSON; //JSON с полями истории таски
+    private static IssueHistory[] issueHistory; //массив объектов с полями тасок (история изменения таски)
     /* */
 
     //DB поля клиента sqlite
@@ -92,10 +94,12 @@ public class Main implements GetIssue, Parser {
 
     private static void getIssueHistory() throws IOException, InterruptedException {
         //формируем URL запроса всех полей связанных с изменением каждой таски
-        for (IssuePreview issuePreview : issuesListPreview) {
-            issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
+        for (int i = 0; i< issuesListPreview.size(); i++) {
+            issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuesListPreview.get(i).getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
             //ToDo делаем запись всех приходящих JSON в объекты
             //парсим на объекты
+            //ToDO тут далее нужно обработать nullPointerException т.к. в объект IssueHistory.values записывается значение null;
+            issueHistory[i] = Parser.parseIssueHistory(issueHistoryJSON); //парсим JSON и выводим поля истории каждой таски
             Thread.sleep(100);
         }
     }
