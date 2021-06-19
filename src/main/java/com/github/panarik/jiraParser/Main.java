@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.panarik.jiraParser.api.GetIssue;
 import com.github.panarik.jiraParser.parse.IssueList;
 import com.github.panarik.jiraParser.parse.IssuePreview;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import com.github.panarik.jiraParser.parse.Parser;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -16,7 +14,7 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main implements GetIssue {
+public class Main implements GetIssue, Parser {
 
     //Поля запросов по API
     private static String GET = "GET"; //тип запроса
@@ -30,7 +28,8 @@ public class Main implements GetIssue {
     private static IssueList issuesList; //список тасок
     private static String issuesJSON; //JSON со списком тасок
     private static List<IssuePreview> issuesListPreview; //список полей каждой таски
-    //каждая таска
+    //каждая таска (история изменения таски)
+    private static String issueHistoryJSON; //JSON с полями истории таски
     /* */
 
     //DB поля клиента sqlite
@@ -87,13 +86,16 @@ public class Main implements GetIssue {
         for (IssuePreview issuePreview : issuesListPreview) {
             GetIssue.getIssue((URLGETTASK + issuePreview.getKey()), authToken); //формируем URL запроса таски с KEY каждой таски
             Thread.sleep(100);
+            //ToDo делаем запись всех приходящих JSON в объекты
         }
     }
 
     private static void getIssueHistory() throws IOException, InterruptedException {
         //формируем URL запроса всех полей связанных с изменением каждой таски
         for (IssuePreview issuePreview : issuesListPreview) {
-            GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски
+            issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
+            //ToDo делаем запись всех приходящих JSON в объекты
+            //парсим на объекты
             Thread.sleep(100);
         }
     }
@@ -102,13 +104,11 @@ public class Main implements GetIssue {
         //выводим тело ответа Жиры со списком тасок
         issuesJSON = GetIssue.getIssue(urlSearch, authToken);
         //парсим на объекты
-        ObjectMapper mapper = new ObjectMapper();
-        issuesList = mapper.readValue(issuesJSON, IssueList.class); //список тасок
-        issuesListPreview = issuesList.getIssues(); //массив со списком полей (id, key) для всех тасок
-
+        issuesList = Parser.parseIssueList(issuesJSON); //парсим JSON и выводим поля списка тасок
+        issuesListPreview = issuesList.getIssues(); //массив со списком полей (id, key) для всех тасок.
+        //дебаг логи
         System.out.println("IssueList fields: " + issuesList.toString());
         System.out.println("IssuePreview fields: " + issuesListPreview.toString());
     }
-
 
 }
