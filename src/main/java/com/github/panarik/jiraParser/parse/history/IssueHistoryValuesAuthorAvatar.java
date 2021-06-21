@@ -1,5 +1,8 @@
 package com.github.panarik.jiraParser.parse.history;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueHistoryValuesAuthorAvatar {
 
     private String avatarX48;

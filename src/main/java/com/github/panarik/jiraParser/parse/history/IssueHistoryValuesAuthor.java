@@ -1,13 +1,16 @@
 package com.github.panarik.jiraParser.parse.history;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueHistoryValuesAuthor {
 
     private String self;
     private String accountId;
     private String emailAddress;
-    private List<IssueHistoryValuesAuthorAvatar> avatarUrls;
+    //private List<IssueHistoryValuesAuthorAvatar> avatarUrls; удалили для дебага
     private String displayName;
     private boolean active;
     private String timeZone;
@@ -37,13 +40,13 @@ public class IssueHistoryValuesAuthor {
         this.emailAddress = emailAddress;
     }
 
-    public List<IssueHistoryValuesAuthorAvatar> getAvatarUrls() {
-        return avatarUrls;
-    }
+//    public List<IssueHistoryValuesAuthorAvatar> getAvatarUrls() {
+//        return avatarUrls;
+//    }
 
-    public void setAvatarUrls(List<IssueHistoryValuesAuthorAvatar> avatarUrls) {
-        this.avatarUrls = avatarUrls;
-    }
+//    public void setAvatarUrls(List<IssueHistoryValuesAuthorAvatar> avatarUrls) {
+//        this.avatarUrls = avatarUrls;
+//    }
 
     public String getDisplayName() {
         return displayName;

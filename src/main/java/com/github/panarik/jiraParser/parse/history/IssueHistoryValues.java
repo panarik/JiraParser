@@ -8,7 +8,7 @@ import java.util.List;
 public class IssueHistoryValues {
 
     private int id;
-    //private List<IssueHistoryValuesAuthor> author; пока убрали для дебага (Cannot deserialize)
+    private IssueHistoryValuesAuthor author;
     private String created;
     private List<IssueHistoryValuesItems> items;
 
@@ -20,13 +20,13 @@ public class IssueHistoryValues {
         this.id = id;
     }
 
-//    public List<IssueHistoryValuesAuthor> getAuthor() {
-//        return author;
-//    }
+    public IssueHistoryValuesAuthor getAuthor() {
+        return author;
+    }
 
-//    public void setAuthor(List<IssueHistoryValuesAuthor> author) {
-//        this.author = author;
-//    }
+    public void setAuthor(IssueHistoryValuesAuthor author) {
+        this.author = author;
+    }
 
     public String getCreated() {
         return created;
