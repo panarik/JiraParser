@@ -1,11 +1,14 @@
 package com.github.panarik.jiraParser.parse.history;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueHistoryValues {
 
     private int id;
-    private List<IssueHistoryValuesAuthor> author;
+    //private List<IssueHistoryValuesAuthor> author; пока убрали для дебага (Cannot deserialize)
     private String created;
     private List<IssueHistoryValuesItems> items;
 
@@ -17,13 +20,13 @@ public class IssueHistoryValues {
         this.id = id;
     }
 
-    public List<IssueHistoryValuesAuthor> getAuthor() {
-        return author;
-    }
+//    public List<IssueHistoryValuesAuthor> getAuthor() {
+//        return author;
+//    }
 
-    public void setAuthor(List<IssueHistoryValuesAuthor> author) {
-        this.author = author;
-    }
+//    public void setAuthor(List<IssueHistoryValuesAuthor> author) {
+//        this.author = author;
+//    }
 
     public String getCreated() {
         return created;

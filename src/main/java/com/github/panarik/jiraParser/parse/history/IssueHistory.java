@@ -1,5 +1,10 @@
 package com.github.panarik.jiraParser.parse.history;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.List;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class IssueHistory {
 
     private String self;
@@ -7,7 +12,16 @@ public class IssueHistory {
     private int startAt;
     private int total;
     private boolean isLast;
-    private IssueHistoryValues values;
+    private List<IssueHistoryValues> values;
+
+
+    public List<IssueHistoryValues> getValues() {
+        return values;
+    }
+
+    public void setValues(List<IssueHistoryValues> values) {
+        this.values = values;
+    }
 
     public String getSelf() {
         return self;
@@ -49,13 +63,6 @@ public class IssueHistory {
         this.isLast = isLast;
     }
 
-    public IssueHistoryValues getValues() {
-        return values;
-    }
-
-    public void setValues(IssueHistoryValues values) {
-        this.values = values;
-    }
 
     @Override
     public String toString() {

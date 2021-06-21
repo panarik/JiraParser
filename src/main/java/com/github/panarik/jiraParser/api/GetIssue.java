@@ -26,7 +26,7 @@ public interface GetIssue {
         //выводим статус
         System.out.println("Request: " + request);
         System.out.println("Request: " + response);
-        System.out.println("JSON response body:"+ responseBodyJSON);
+        System.out.println("\nJSON response body:"+ responseBodyJSON);
 
         return responseBodyJSON;
     }

@@ -1,5 +1,6 @@
 package com.github.panarik.jiraParser.parse;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.panarik.jiraParser.parse.history.IssueHistory;
