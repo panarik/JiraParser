@@ -65,4 +65,17 @@ public class IssueHistoryValuesItems {
     public void setToString(String toString) {
         this.toString = toString;
     }
+
+    @Override
+    public String toString() {
+        return "IssueHistoryValuesItems{" +
+                "field='" + field + '\'' +
+                ", fieldtype='" + fieldtype + '\'' +
+                ", fieldId='" + fieldId + '\'' +
+                ", from='" + from + '\'' +
+                ", fromString='" + fromString + '\'' +
+                ", to='" + to + '\'' +
+                ", toString='" + toString + '\'' +
+                '}';
+    }
 }

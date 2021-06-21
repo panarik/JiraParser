@@ -43,4 +43,14 @@ public class IssueHistoryValues {
     public void setItems(List<IssueHistoryValuesItems> items) {
         this.items = items;
     }
+
+    @Override
+    public String toString() {
+        return "IssueHistoryValues{" +
+                "id=" + id +
+                ", author=" + author +
+                ", created='" + created + '\'' +
+                ", items=" + items +
+                '}';
+    }
 }

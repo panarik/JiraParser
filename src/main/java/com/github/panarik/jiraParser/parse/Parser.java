@@ -22,7 +22,7 @@ public interface Parser {
         mapper.enable(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
         IssueHistory issueHistory = mapper.readValue(jSON, IssueHistory.class); //список тасок
         //дебаг логи
-        System.out.println("IssueList fields: " + issueHistory.toString());
+        System.out.println("\nIssueHistory fields: " + issueHistory.toString());
         return issueHistory;
     }
 
