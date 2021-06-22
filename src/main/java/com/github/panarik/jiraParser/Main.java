@@ -42,14 +42,23 @@ public class Main implements GetIssue, Parser {
         auth();
         searchIssues();
         //getIssues();
-        //getIssueHistory();
+        getIssueHistory();
 
         //отправляет список тасок в БД (таблица search)
         try {
-            connectDB();
-            //проходим по списку всех тасок, выдергиваем из них поля и помещаем в таблицу с тасками
+            connectDB(); //коннектимся или создаём БД
+            clearDB("search"); //очищаем все строки в таблице "search"
+            //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
             for (int i = 0; i < issuesListPreview.size(); i++) {
-                putIssuesList(issuesList.getIssues().get(i).getId(), issuesList.getIssues().get(i).getKey());
+                putIssuesList("search", issuesList.getIssues().get(i).getId(), issuesList.getIssues().get(i).getKey());
+            }
+            /*ToDo
+             * проходим по каждой таске, (история изменений)
+             * выдергиваем из неё все интересные поля, если field=status,
+             * складываем в таблицу с тасками (история изменения) все найденное подряд
+             */
+            for (int i =0; i<issueHistory.size();i++) {
+
             }
 
         } catch (SQLException e) {
@@ -60,8 +69,12 @@ public class Main implements GetIssue, Parser {
 
     }
 
-    private static void putIssuesList(String jid, String key) throws SQLException {
-        statement.executeUpdate("insert into search (jid, key) values('" + jid + "', '" + key + "');");
+    private static void clearDB(String tableName) throws SQLException {
+        statement.executeUpdate("delete from "+tableName+";");
+    }
+
+    private static void putIssuesList(String tableName, String jid, String key) throws SQLException {
+        statement.executeUpdate("insert into "+tableName+" (jid, key) values('" + jid + "', '" + key + "');");
     }
 
     private static void disconnect() {
@@ -78,7 +91,8 @@ public class Main implements GetIssue, Parser {
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
         statement = connection.createStatement();
         //create table if its not exist
-        statement.execute("create table if not exists search (id integer primary key autoincrement, jid text, key text);");
+        statement.execute("create table if not exists search (id integer primary key autoincrement, jid text, key text);"); //таблица со списком всех тасок
+        statement.execute("create table if not exists issueHistory (id integer primary key autoincrement, self text, authorDisplayName text, created text, field text, fromString text, toString text);"); //таблица с историей изменения каждой таски
 
 
     }
