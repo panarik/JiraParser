@@ -1,10 +1,8 @@
 package com.github.panarik.jiraParser;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.panarik.jiraParser.api.GetIssue;
-import com.github.panarik.jiraParser.parse.IssueList;
-import com.github.panarik.jiraParser.parse.IssuePreview;
+import com.github.panarik.jiraParser.parse.search.IssueList;
+import com.github.panarik.jiraParser.parse.search.IssuePreview;
 import com.github.panarik.jiraParser.parse.Parser;
 import com.github.panarik.jiraParser.parse.history.IssueHistory;
 
@@ -32,9 +30,8 @@ public class Main implements GetIssue, Parser {
     private static String issuesJSON; //JSON со списком тасок
     private static List<IssuePreview> issuesListPreview; //список полей каждой таски
     //каждая таска (история изменения таски)
-    private static String issueHistoryJSON; //JSON с полями истории таски
+    private static String issueHistoryJSON; //JSON с полями таски (история изменения таски)
     private static List<IssueHistory> issueHistory; //массив объектов с полями тасок (история изменения таски)
-    /* */
 
     //DB поля клиента sqlite
     private static Connection connection;
@@ -44,22 +41,27 @@ public class Main implements GetIssue, Parser {
 
         auth();
         searchIssues();
-        getIssues();
-        getIssueHistory();
+        //getIssues();
+        //getIssueHistory();
 
-//        //отправляет таски в ДБ
-//        try {
-//            connectDB();
-//            putIssuesOnDB();
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        } finally {
-//            disconnect();
-//        }
+        //отправляет список тасок в БД (таблица search)
+        try {
+            connectDB();
+            //проходим по списку всех тасок, выдергиваем из них поля и помещаем в таблицу с тасками
+            for (int i = 0; i < issuesListPreview.size(); i++) {
+                putIssuesList(issuesList.getIssues().get(i).getId(), issuesList.getIssues().get(i).getKey());
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            disconnect();
+        }
 
     }
 
-    private static void putIssuesOnDB() {
+    private static void putIssuesList(String jid, String key) throws SQLException {
+        statement.executeUpdate("insert into search (jid, key) values('" + jid + "', '" + key + "');");
     }
 
     private static void disconnect() {
@@ -75,6 +77,9 @@ public class Main implements GetIssue, Parser {
         //create DB
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
         statement = connection.createStatement();
+        //create table if its not exist
+        statement.execute("create table if not exists search (id integer primary key autoincrement, jid text, key text);");
+
 
     }
 
@@ -96,7 +101,7 @@ public class Main implements GetIssue, Parser {
 
     private static void getIssueHistory() throws IOException, InterruptedException {
         //формируем URL запроса всех полей связанных с изменением каждой таски
-        for (int i = 0; i< issuesListPreview.size(); i++) {
+        for (int i = 0; i < issuesListPreview.size(); i++) {
             issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuesListPreview.get(i).getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
             //парсим на объекты
             issueHistory = new ArrayList<IssueHistory>();

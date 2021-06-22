@@ -78,4 +78,16 @@ public class IssueHistoryValuesAuthor {
         this.accountType = accountType;
     }
 
+    @Override
+    public String toString() {
+        return "IssueHistoryValuesAuthor{" +
+                "self='" + self + '\'' +
+                ", accountId='" + accountId + '\'' +
+                ", emailAddress='" + emailAddress + '\'' +
+                ", displayName='" + displayName + '\'' +
+                ", active=" + active +
+                ", timeZone='" + timeZone + '\'' +
+                ", accountType='" + accountType + '\'' +
+                '}';
+    }
 }
