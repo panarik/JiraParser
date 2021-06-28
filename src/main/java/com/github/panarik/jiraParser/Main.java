@@ -58,11 +58,41 @@ public class Main implements GetIssue, Parser {
 
             /*ToDo
              * проходим по каждой таске, (история изменений)
-             * выдергиваем из неё все интересные поля, если field=status,
+             * выдергиваем из неё все интересные поля
              * складываем в таблицу с тасками (история изменения) все найденное подряд
              */
+            for (int i = 0; i < issueHistory.size(); i++) {
+                //выясняем сколько элементов истории (value полей) есть у каждой таски
+                int thisValues = issueHistory.get(i).getValues().size();
+                //вытаскиваем все нужные поля из каждого value поля таски
+                for (int j = 0; j<thisValues; j++) {
+                    //вытаскиваем автора
+                    String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getEmailAddress();
+                    System.out.println("thisValueAuthor "+issueHistory.get(i).getSelf()+" = "+ thisValueAuthor);
+                /*
+                * ToDo: дебажить перебор методов:
+                *  - в UI                   - 4 события - для таски TEST-7
+                *  - в теле JSON            - ? события - для таски TEST-7
+                *  - в объекте issueHistory - ? события - для таски TEST-7
 
-            for (int i =0; i<issueHistory.size();i++) {
+                */
+                }
+
+//                //заполняем полученные данные в табличку
+//                statement.executeUpdate("insert into history (" +
+//                        "id integer primary key, " +
+//                        "self text, " +
+//                        "authorDisplayName text, " +
+//                        "created text, " +
+//                        "field text, " +
+//                        "fromString text, " +
+//                        "toString text) " +
+//                        "values(" +
+//                        "'" + i+1 + "', " +
+//                        "'" + issueHistory.get(i).getValues().get(i) + "', " +
+//                        "'" + i + "'" +
+//                        ");");
+//                //issueHistory.get(i).
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -94,9 +124,8 @@ public class Main implements GetIssue, Parser {
             clearDB("search"); //очищаем все строки в таблице "search"
             //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
             for (int i = 0; i < issuesListPreview.size(); i++) {
-                putIssuesList(
-                        "search", //таблица, в которую складываем таски
-                        i+1, //id в таблице
+                putIssuesIntoSearchTable(
+                        i + 1, //id в таблице
                         issuesList.getIssues().get(i).getId(), //id таски в Жире
                         issuesList.getIssues().get(i).getKey()); //наименование таски в Жире
             }
@@ -108,11 +137,11 @@ public class Main implements GetIssue, Parser {
     }
 
     private static void clearDB(String tableName) throws SQLException {
-        statement.executeUpdate("delete from "+tableName+";");
+        statement.executeUpdate("delete from " + tableName + ";");
     }
 
-    private static void putIssuesList(String tableName, int id, String jid, String key) throws SQLException {
-        statement.executeUpdate("insert into "+tableName+" (id, jid, key) values('"+id+"', '" + jid + "', '" + key + "');");
+    private static void putIssuesIntoSearchTable(int id, String jid, String key) throws SQLException {
+        statement.executeUpdate("insert into search (id, jid, key) values('" + id + "', '" + jid + "', '" + key + "');");
     }
 
     private static void disconnect() {
@@ -150,9 +179,9 @@ public class Main implements GetIssue, Parser {
 
     private static void getIssueHistory() throws IOException, InterruptedException {
         //формируем URL запроса всех полей связанных с изменением каждой таски
-        issueHistory = new ArrayList<IssueHistory>();
-        for (int i = 0; i < issuesListPreview.size(); i++) {
-            issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuesListPreview.get(i).getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
+        issueHistory = new ArrayList<>();
+        for (IssuePreview issuePreview : issuesListPreview) {
+            issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
             //парсим на объекты
             issueHistory.add(Parser.parseIssueHistory(issueHistoryJSON)); //парсим JSON и выводим поля истории каждой таски
             Thread.sleep(100);
