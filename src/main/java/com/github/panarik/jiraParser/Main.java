@@ -40,17 +40,27 @@ public class Main implements GetIssue, Parser {
     public static void main(String[] args) throws IOException, InterruptedException {
 
         auth();
-        searchIssues();
+        searchIssues(); //получаем из API Jira все таски
         //getIssues();
-        getIssueHistory();
+        getIssueHistory(); //получаем из API Jira все поля истории каждой таски
+        putIssuesOnDatabase(); //создаём БД со всеми тасками
 
+
+
+    }
+
+    private static void putIssuesOnDatabase() {
         //отправляет список тасок в БД (таблица search)
         try {
             connectDB(); //коннектимся или создаём БД
             clearDB("search"); //очищаем все строки в таблице "search"
             //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
             for (int i = 0; i < issuesListPreview.size(); i++) {
-                putIssuesList("search", issuesList.getIssues().get(i).getId(), issuesList.getIssues().get(i).getKey());
+                putIssuesList(
+                        "search", //таблица, в которую складываем таски
+                        i+1, //id в таблице
+                        issuesList.getIssues().get(i).getId(), //id таски в Жире
+                        issuesList.getIssues().get(i).getKey()); //наименование таски в Жире
             }
             /*ToDo
              * проходим по каждой таске, (история изменений)
@@ -66,15 +76,14 @@ public class Main implements GetIssue, Parser {
         } finally {
             disconnect();
         }
-
     }
 
     private static void clearDB(String tableName) throws SQLException {
         statement.executeUpdate("delete from "+tableName+";");
     }
 
-    private static void putIssuesList(String tableName, String jid, String key) throws SQLException {
-        statement.executeUpdate("insert into "+tableName+" (jid, key) values('" + jid + "', '" + key + "');");
+    private static void putIssuesList(String tableName, int id, String jid, String key) throws SQLException {
+        statement.executeUpdate("insert into "+tableName+" (id, jid, key) values('"+id+"', '" + jid + "', '" + key + "');");
     }
 
     private static void disconnect() {
@@ -91,7 +100,7 @@ public class Main implements GetIssue, Parser {
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
         statement = connection.createStatement();
         //create table if its not exist
-        statement.execute("create table if not exists search (id integer primary key autoincrement, jid text, key text);"); //таблица со списком всех тасок
+        statement.execute("create table if not exists search (id integer primary key, jid text, key text);"); //таблица со списком всех тасок
         statement.execute("create table if not exists issueHistory (id integer primary key autoincrement, self text, authorDisplayName text, created text, field text, fromString text, toString text);"); //таблица с историей изменения каждой таски
 
 
