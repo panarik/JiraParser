@@ -44,15 +44,53 @@ public class Main implements GetIssue, Parser {
         //getIssues();
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
         putIssuesOnDatabase(); //создаём БД со всеми тасками
+        putIssueHistoryOnDatabase(); //создаём БД со всеми полями истории каждой таски
 
+    }
 
+    private static void putIssueHistoryOnDatabase() {
 
+        //отправляет список тасок в БД (таблица search)
+        try {
+            connectIssueHistoryDB(); //коннектимся или создаём БД
+            //ToDo вместо очистки таблицы можно архивировать файлик с предыдущим запросом и создавать сегодняшнюю БД
+            clearDB("history"); //очищаем все строки в таблице "search"
+
+            /*ToDo
+             * проходим по каждой таске, (история изменений)
+             * выдергиваем из неё все интересные поля, если field=status,
+             * складываем в таблицу с тасками (история изменения) все найденное подряд
+             */
+
+            for (int i =0; i<issueHistory.size();i++) {
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            disconnect();
+        }
+
+    }
+
+    private static void connectIssueHistoryDB() throws SQLException {
+        //create DB with
+        connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
+        statement = connection.createStatement();
+        //create table if its not exist
+        statement.execute("create table if not exists history (" +
+                "id integer primary key," +
+                " self text, " +
+                "authorDisplayName text, " +
+                "created text, " +
+                "field text, " +
+                "fromString text, " +
+                "toString text);"); //таблица с историей изменения каждой таски
     }
 
     private static void putIssuesOnDatabase() {
         //отправляет список тасок в БД (таблица search)
         try {
-            connectDB(); //коннектимся или создаём БД
+            connectIssuesDB(); //коннектимся или создаём БД
             clearDB("search"); //очищаем все строки в таблице "search"
             //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
             for (int i = 0; i < issuesListPreview.size(); i++) {
@@ -62,15 +100,6 @@ public class Main implements GetIssue, Parser {
                         issuesList.getIssues().get(i).getId(), //id таски в Жире
                         issuesList.getIssues().get(i).getKey()); //наименование таски в Жире
             }
-            /*ToDo
-             * проходим по каждой таске, (история изменений)
-             * выдергиваем из неё все интересные поля, если field=status,
-             * складываем в таблицу с тасками (история изменения) все найденное подряд
-             */
-            for (int i =0; i<issueHistory.size();i++) {
-
-            }
-
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -95,15 +124,12 @@ public class Main implements GetIssue, Parser {
         }
     }
 
-    private static void connectDB() throws SQLException {
-        //create DB
+    private static void connectIssuesDB() throws SQLException {
+        //create DB with
         connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
         statement = connection.createStatement();
         //create table if its not exist
         statement.execute("create table if not exists search (id integer primary key, jid text, key text);"); //таблица со списком всех тасок
-        statement.execute("create table if not exists issueHistory (id integer primary key autoincrement, self text, authorDisplayName text, created text, field text, fromString text, toString text);"); //таблица с историей изменения каждой таски
-
-
     }
 
     private static void auth() {
@@ -124,10 +150,10 @@ public class Main implements GetIssue, Parser {
 
     private static void getIssueHistory() throws IOException, InterruptedException {
         //формируем URL запроса всех полей связанных с изменением каждой таски
+        issueHistory = new ArrayList<IssueHistory>();
         for (int i = 0; i < issuesListPreview.size(); i++) {
             issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuesListPreview.get(i).getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
             //парсим на объекты
-            issueHistory = new ArrayList<IssueHistory>();
             issueHistory.add(Parser.parseIssueHistory(issueHistoryJSON)); //парсим JSON и выводим поля истории каждой таски
             Thread.sleep(100);
         }
