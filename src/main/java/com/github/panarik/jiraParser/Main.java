@@ -66,16 +66,21 @@ public class Main implements GetIssue, Parser {
                 int thisValues = issueHistory.get(i).getValues().size();
                 //вытаскиваем все нужные поля из каждого value поля таски
                 for (int j = 0; j<thisValues; j++) {
-                    //вытаскиваем автора
-                    String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getEmailAddress();
-                    System.out.println("thisValueAuthor "+issueHistory.get(i).getSelf()+" = "+ thisValueAuthor);
-                /*
-                * ToDo: дебажить перебор методов:
-                *  - в UI                   - 4 события - для таски TEST-7
-                *  - в теле JSON            - ? события - для таски TEST-7
-                *  - в объекте issueHistory - ? события - для таски TEST-7
 
-                */
+                    String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getDisplayName(); //вытаскиваем автора
+                    String thisValueCreated = issueHistory.get(i).getValues().get(j).getCreated();
+
+                    //узнаем сколько объектов есть в листе IssueHistoryValuesItems
+                    //извлекаем поля из объектов
+                    int valueItems = issueHistory.get(i).getValues().get(j).getItems().size();
+                    for (int k = 0; k<valueItems; k++) {
+                        String thisValueField = issueHistory.get(i).getValues().get(j).getItems().get(k).getField();
+                        String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString();
+                        String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString();
+
+                        System.out.printf("Task History: Author:%s, Created:%s, Field:%s, From:%s, To:%s\n",thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
+                    }
+
                 }
 
 //                //заполняем полученные данные в табличку
