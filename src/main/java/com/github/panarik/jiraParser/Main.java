@@ -50,6 +50,8 @@ public class Main implements GetIssue, Parser {
 
     private static void putIssueHistoryOnDatabase() {
 
+        int id = 0; //устанавливаем начальное id для таблицы с историей тасок
+
         //отправляет список тасок в БД (таблица search)
         try {
             connectIssueHistoryDB(); //коннектимся или создаём БД
@@ -57,54 +59,49 @@ public class Main implements GetIssue, Parser {
             clearDB("history"); //очищаем все строки в таблице "search"
 
             /*ToDo
-             * проходим по каждой таске, (история изменений)
-             * выдергиваем из неё все интересные поля
              * складываем в таблицу с тасками (история изменения) все найденное подряд
              */
+
             for (int i = 0; i < issueHistory.size(); i++) {
 
                 //получаем и обрезаем KEY текущей таски
                 String thisKeyAll = issueHistory.get(i).getSelf();
-//                int thisKeySum = issueHistory.get(i).getSelf().length();
                 StringBuilder thisKeyCut = new StringBuilder(thisKeyAll);
                 thisKeyCut.delete(0, 48); //удаляем URL до значения KEY
                 int thisKeySum = thisKeyCut.length();
-                thisKeyCut.delete(thisKeySum-35, thisKeySum); //удаляем параметры после значения KEY
+                thisKeyCut.delete(thisKeySum - 35, thisKeySum); //удаляем параметры после значения KEY
                 String thisKey = thisKeyCut.toString();
 
                 //выясняем сколько элементов истории (value полей) есть у каждой таски
                 int thisValues = issueHistory.get(i).getValues().size();
                 //вытаскиваем все нужные поля из каждого value поля таски
-                for (int j = 0; j<thisValues; j++) {
+                for (int j = 0; j < thisValues; j++) {
 
                     String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getDisplayName(); //получаем пользователя
                     String thisValueCreated = issueHistory.get(i).getValues().get(j).getCreated(); //получаем дату изменения поля таски
 
                     //извлекаем измененные пользователем поля
                     int valueItems = issueHistory.get(i).getValues().get(j).getItems().size(); //узнаем сколько полей пользователь изменил
-                    for (int k = 0; k<valueItems; k++) {
+                    for (int k = 0; k < valueItems; k++) {
                         String thisValueField = issueHistory.get(i).getValues().get(j).getItems().get(k).getField(); //получаем тип меняемого пользователем поля таски
                         String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString(); //получаем исходное состояние поля таски
                         String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString(); //получаем конечное состояние поля таски
 
                         //дебаг лог
-                        System.out.printf("Task History: Key:%s, Author:%s, Created:%s, Field:%s, From:%s, To:%s\n",thisKey, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
+                        System.out.printf("Task History: Key:%s, Author:%s, Created:%s, Field:%s, From:%s, To:%s\n", thisKey, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
                         //заполняем полученные данные в табличку
-//                statement.executeUpdate("insert into history (" +
-//                        "id integer primary key, " +
-//                        "key integer, " +
-//                        "authorDisplayName text, " +
-//                        "created text, " +
-//                        "field text, " +
-//                        "fromString text, " +
-//                        "toString text) " +
-//                        "values(" +
-//                        "'" + i+1 + "', " +
-//                        "'" + issueHistory.get(i).getValues().get(i) + "', " +
-//                        "'" + i + "'" +
-//                        ");");
-                //issueHistory.get(i).
-
+                        id++;
+                        statement.executeUpdate("insert into history" +
+                                "(id, key, authorDisplayName, created, field, fromString, toString) " +
+                                "values(" +
+                                "'" + id + "', " +
+                                "'" + thisKey + "', " +
+                                "'" + thisValueAuthor + "', " +
+                                "'" + thisValueCreated + "', " +
+                                "'" + thisValueField + "', " +
+                                "'" + thisValueFieldFrom + "', " +
+                                "'" + thisValueFieldTo + "'" +
+                                ");");
                     }
 
                 }
@@ -126,7 +123,7 @@ public class Main implements GetIssue, Parser {
         //create table if its not exist
         statement.execute("create table if not exists history (" +
                 "id integer primary key," +
-                " self text, " +
+                "key text, " +
                 "authorDisplayName text, " +
                 "created text, " +
                 "field text, " +
