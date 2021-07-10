@@ -39,7 +39,8 @@ public class Main implements GetIssue, Parser {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        auth();
+        authToken = "token";
+//        auth();
         searchIssues(); //получаем из API Jira все таски
         //getIssues();
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски

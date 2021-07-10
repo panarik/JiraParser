@@ -1,11 +1,10 @@
 plugins {
-    id 'java-library'
+    id "application"
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(15)
-    }
+apply plugin : "java"
+application {
+    mainClass = 'com.github.panarik.jiraParser.Main'
 }
 
 group 'com.github.panarik'
