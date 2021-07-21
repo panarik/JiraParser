@@ -6,6 +6,8 @@ import com.github.panarik.jiraParser.parse.search.IssuePreview;
 import com.github.panarik.jiraParser.parse.Parser;
 import com.github.panarik.jiraParser.parse.history.IssueHistory;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -39,14 +41,30 @@ public class Main implements GetIssue, Parser {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        authToken = "token";
-//        auth();
+//        auth(); //ввод токена с консоли
+        authFromFile(); //ввод токена из файла
         searchIssues(); //получаем из API Jira все таски
         //getIssues();
+
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
         putIssuesOnDatabase(); //создаём БД со всеми тасками
         putIssueHistoryOnDatabase(); //создаём БД со всеми полями истории каждой таски
 
+    }
+
+    private static void authFromFile() {
+        try (FileInputStream fis = new FileInputStream("src/main/resources/configs")) {
+            int x; //складываем по символам токен в виде байтов
+            StringBuilder s = new StringBuilder(); //строка с токеном
+            while ((x = fis.read()) > -1) {
+                s.append((char)x);
+            }
+            authToken = s.toString();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void putIssueHistoryOnDatabase() {
