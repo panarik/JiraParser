@@ -1,8 +1,8 @@
-FROM ubuntu:21.10
+FROM openjdk:15-jdk-alpine
 
 RUN mkdir -p /usr/src/jiraParser/
 WORKDIR /usr/src/jiraParser/
 
 COPY . /usr/src/jiraParser/
 
-CMD ["/bin/bash"]
+CMD ["./gradlew", "run", "--no-daemon"]
