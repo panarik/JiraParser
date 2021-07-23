@@ -2,6 +2,8 @@
 /out
 /target
 /build
+/logic/build
+/parser/build
 /.gradle
 src/main/resources/*.json
 *.db

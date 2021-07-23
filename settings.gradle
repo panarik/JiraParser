@@ -1,3 +1,4 @@
 rootProject.name = 'JiraParser'
 include 'logic'
+include 'parser'
 
