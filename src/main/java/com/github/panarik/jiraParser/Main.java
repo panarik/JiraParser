@@ -188,7 +188,7 @@ public class Main implements GetIssue, Parser {
 
     private static void connectIssuesDB() throws SQLException {
         //create DB with
-        connection = DriverManager.getConnection("jdbc:sqlite:src/main/resources/jiraIssues.db");
+        connection = DriverManager.getConnection("jdbc:sqlite:jiraIssues.db");
         statement = connection.createStatement();
         //create table if its not exist
         statement.execute("create table if not exists search (id integer primary key, jid text, key text);"); //таблица со списком всех тасок
