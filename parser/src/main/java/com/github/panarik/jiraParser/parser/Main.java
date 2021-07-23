@@ -1,10 +1,10 @@
-package com.github.panarik.jiraParser;
+package com.github.panarik.jiraParser.parser;
 
-import com.github.panarik.jiraParser.api.GetIssue;
-import com.github.panarik.jiraParser.parse.search.IssueList;
-import com.github.panarik.jiraParser.parse.search.IssuePreview;
-import com.github.panarik.jiraParser.parse.Parser;
-import com.github.panarik.jiraParser.parse.history.IssueHistory;
+import com.github.panarik.jiraParser.parser.api.GetIssue;
+import com.github.panarik.jiraParser.parser.parse.search.IssueList;
+import com.github.panarik.jiraParser.parser.parse.search.IssuePreview;
+import com.github.panarik.jiraParser.parser.parse.Parser;
+import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

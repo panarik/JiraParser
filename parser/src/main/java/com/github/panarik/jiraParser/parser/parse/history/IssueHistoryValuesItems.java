@@ -1,4 +1,4 @@
-package com.github.panarik.jiraParser.parse.history;
+package com.github.panarik.jiraParser.parser.parse.history;
 
 public class IssueHistoryValuesItems {
 

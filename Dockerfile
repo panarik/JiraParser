@@ -5,4 +5,4 @@ WORKDIR /usr/src/jiraParser/
 
 COPY . /usr/src/jiraParser/
 
-CMD ["./gradlew", "run", "--no-daemon"]
+CMD ["./gradlew", ":parser:run", "--no-daemon"]

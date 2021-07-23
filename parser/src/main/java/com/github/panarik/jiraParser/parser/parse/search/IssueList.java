@@ -1,4 +1,4 @@
-package com.github.panarik.jiraParser.parse.search;
+package com.github.panarik.jiraParser.parser.parse.search;
 
 import java.util.List;
 

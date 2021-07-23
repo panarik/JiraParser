@@ -1,4 +1,4 @@
-package com.github.panarik.jiraParser.api;
+package com.github.panarik.jiraParser.parser.api;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
