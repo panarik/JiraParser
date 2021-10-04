@@ -5,6 +5,7 @@ import com.github.panarik.jiraParser.parser.parse.search.IssueList;
 import com.github.panarik.jiraParser.parser.parse.search.IssuePreview;
 import com.github.panarik.jiraParser.parser.parse.Parser;
 import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
+import com.github.panarik.jiraParser.parser.util.Config;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -49,11 +50,10 @@ public class Main implements GetIssue, Parser {
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
         putIssuesOnDatabase(); //создаём БД со всеми тасками
         putIssueHistoryOnDatabase(); //создаём БД со всеми полями истории каждой таски
-
     }
 
     private static void authFromFile() {
-        try (FileInputStream fis = new FileInputStream("src/main/resources/configs")) {
+        try (FileInputStream fis = new FileInputStream(Config.JIRA_TOKEN)) {
             int x; //складываем по символам токен в виде байтов
             StringBuilder s = new StringBuilder(); //строка с токеном
             while ((x = fis.read()) > -1) {
