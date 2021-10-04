@@ -1,6 +1,6 @@
 package com.github.panarik.jiraParser.parser;
 
-import com.github.panarik.jiraParser.parser.api.GetIssue;
+import com.github.panarik.jiraParser.parser.http.GetIssue;
 import com.github.panarik.jiraParser.parser.parse.search.IssueList;
 import com.github.panarik.jiraParser.parser.parse.search.IssuePreview;
 import com.github.panarik.jiraParser.parser.parse.Parser;
@@ -122,10 +122,7 @@ public class Main implements GetIssue, Parser {
                                 "'" + thisValueFieldTo + "'" +
                                 ");");
                     }
-
                 }
-
-//
             }
         } catch (SQLException e) {
             e.printStackTrace();
