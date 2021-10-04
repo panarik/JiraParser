@@ -9,10 +9,6 @@ import java.util.GregorianCalendar;
 
 public class Log {
 
-    public static void main(String[] args) {
-        debug("hello");
-    }
-
     private static String date;
     private final static String LOG_PATH = "resources/log-";
 
