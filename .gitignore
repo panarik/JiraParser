@@ -1,9 +1,9 @@
 /.idea
+/.gradle
 /out
 /target
 /build
 /logic/build
 /parser/build
-/.gradle
-src/main/resources/*.json
+/parser/src/main/resources
 *.db

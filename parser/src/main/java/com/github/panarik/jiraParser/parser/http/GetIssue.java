@@ -1,5 +1,6 @@
-package com.github.panarik.jiraParser.parser.api;
+package com.github.panarik.jiraParser.parser.http;
 
+import com.github.panarik.jiraParser.parser.util.Log;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -11,7 +12,7 @@ public interface GetIssue {
 
     static String getIssue(String url, String authToken) throws IOException {
 
-        //запрашиваем в Жире информацию
+        //запрашиваем в Jira информацию
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         Request request = new Request.Builder()
@@ -25,8 +26,10 @@ public interface GetIssue {
 
         //выводим статус
         System.out.println("Request: " + request);
-        System.out.println("Request: " + response);
-        System.out.println("\nJSON response body:"+ responseBodyJSON);
+        Log.debug("Request:" + request);
+        System.out.println("Response: " + response);
+        Log.debug("Response:" + response);
+        System.out.println("\nJSON response body:" + responseBodyJSON);
 
         return responseBodyJSON;
     }
