@@ -1,8 +1,9 @@
 /.idea
 /.gradle
 /out
-/target
 /build
+/resources
+/target
 /logic/build
 /parser/build
 /parser/src/main/resources

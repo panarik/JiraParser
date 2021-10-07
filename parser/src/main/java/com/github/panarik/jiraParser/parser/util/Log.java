@@ -19,11 +19,9 @@ public class Log {
         Calendar calendar = new GregorianCalendar();
         date = formatFile.format(calendar.getTime());
         String line = formatLine.format(calendar.getTime())+": ";
-        System.out.println(date);
 
         //создаём файл
         File logFile = new File(LOG_PATH+date);
-        System.out.println(logFile.exists());
         //готовим данные
         byte[] buffer = (line+log).getBytes(StandardCharsets.UTF_8);
         //записываем данные в файл

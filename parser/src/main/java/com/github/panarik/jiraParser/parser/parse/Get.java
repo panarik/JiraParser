@@ -7,9 +7,9 @@ import com.github.panarik.jiraParser.parser.parse.search.IssueList;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT;
 
-public interface Parser {
+public interface Get {
 
-    static IssueList parseIssueList (String jSON) throws JsonProcessingException {
+    static IssueList issueList(String jSON) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         IssueList issuesList = mapper.readValue(jSON, IssueList.class); //список тасок
         //дебаг логи
@@ -17,7 +17,7 @@ public interface Parser {
         return issuesList;
     }
 
-    static IssueHistory parseIssueHistory (String jSON) throws JsonProcessingException {
+    static IssueHistory issueHistory(String jSON) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
         IssueHistory issueHistory = mapper.readValue(jSON, IssueHistory.class); //список тасок

@@ -3,7 +3,7 @@ package com.github.panarik.jiraParser.parser;
 import com.github.panarik.jiraParser.parser.http.GetIssue;
 import com.github.panarik.jiraParser.parser.parse.search.IssueList;
 import com.github.panarik.jiraParser.parser.parse.search.IssuePreview;
-import com.github.panarik.jiraParser.parser.parse.Parser;
+import com.github.panarik.jiraParser.parser.parse.Get;
 import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
 import com.github.panarik.jiraParser.parser.util.Config;
 
@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main implements GetIssue, Parser {
+public class Parser implements GetIssue, Get {
 
     //Поля запросов по API
     private static String GET = "GET"; //тип запроса
@@ -213,7 +213,7 @@ public class Main implements GetIssue, Parser {
         for (IssuePreview issuePreview : issuesListPreview) {
             issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
             //парсим на объекты
-            issueHistory.add(Parser.parseIssueHistory(issueHistoryJSON)); //парсим JSON и выводим поля истории каждой таски
+            issueHistory.add(Get.issueHistory(issueHistoryJSON)); //парсим JSON и выводим поля истории каждой таски
             Thread.sleep(100);
         }
     }
@@ -222,7 +222,7 @@ public class Main implements GetIssue, Parser {
         //выводим тело ответа Жиры со списком тасок
         issuesJSON = GetIssue.getIssue(urlSearch, authToken);
         //парсим на объекты
-        issuesList = Parser.parseIssueList(issuesJSON); //парсим JSON и выводим поля списка тасок
+        issuesList = Get.issueList(issuesJSON); //парсим JSON и выводим поля списка тасок
         issuesListPreview = issuesList.getIssues(); //массив со списком полей (id, key) для всех тасок.
         //дебаг логи
         System.out.println("IssueList fields: " + issuesList.toString());
