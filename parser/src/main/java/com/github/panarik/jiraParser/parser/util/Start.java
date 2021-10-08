@@ -1,6 +1,7 @@
 package com.github.panarik.jiraParser.parser.util;
 
-import java.io.IOException;
+import com.github.panarik.jiraParser.parser.Parser;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,9 +14,10 @@ public class Start {
     public static void main(String[] args) {
 
         //домашка п.2
-        manager = Executors.newSingleThreadExecutor();
+        manager = Executors.newCachedThreadPool();
         manager.execute(Start::task1); //домашка п.1
-        manager.execute(Server::run); //довесок в виде сервера
+        manager.execute(Server::run); //запуск сервера
+        manager.execute(Parser::run); //запуск парсера Jira
     }
 
     private static void task1() {
