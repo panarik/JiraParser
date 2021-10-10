@@ -7,13 +7,13 @@ import java.util.concurrent.Executors;
 
 public class Start {
 
-    private static final Object MONITOR = new Object();
-    private static String letter = " ";
     private static ExecutorService manager; //manage threads
 
     public static void main(String[] args) {
 
-        //домашка п.2
+        //path to config file log4j2
+        System.out.println(System.setProperty("Dlog4j.configurationFile", "file:/resources/config/log4j2config.xml"));
+
         manager = Executors.newCachedThreadPool();
         manager.execute(Server::run); //запуск сервера
         manager.execute(Parser::run); //запуск парсера Jira

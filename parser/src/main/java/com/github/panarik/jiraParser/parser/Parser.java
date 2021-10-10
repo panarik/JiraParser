@@ -8,6 +8,9 @@ import com.github.panarik.jiraParser.parser.parse.search.IssuePreview;
 import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
 import com.github.panarik.jiraParser.parser.util.Config;
 import com.github.panarik.jiraParser.parser.util.Log;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +24,9 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Parser {
+
+    //логгер
+    private static final Logger log = LogManager.getLogger();
 
     //Поля запросов по API
     private static String GET = "GET"; //тип запроса
@@ -47,7 +53,6 @@ public class Parser {
 //        auth(); //ввод токена с консоли
         authFromFile(); //ввод токена из файла
         searchIssues(); //получаем из API Jira все таски
-        //getIssues();
 
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
         putIssuesOnDatabase(); //создаём БД со всеми тасками
@@ -108,8 +113,7 @@ public class Parser {
                         String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString(); //получаем исходное состояние поля таски
                         String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString(); //получаем конечное состояние поля таски
 
-                        //дебаг лог
-                        System.out.printf("Task History: Key:%s, Author:%s, Created:%s, Field:%s, From:%s, To:%s\n", thisKey, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
+                        log.trace("Task History: Key:{}, Author:{}, Created:{}, Field:{}, From:{}, To:{}", thisKey, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
                         //заполняем полученные данные в табличку
                         id++;
                         statement.executeUpdate("insert into history" +
@@ -127,10 +131,11 @@ public class Parser {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.throwing(Level.ERROR, e);
         } finally {
             disconnect();
         }
+        log.info("PARSER - work has complete, add {} tasks to database", issuesList.getIssues().size());
 
     }
 
@@ -220,25 +225,19 @@ public class Parser {
                 Thread.sleep(100);
             }
         } catch (InterruptedException | JsonProcessingException e) {
-            Log.debug(e);
+            log.throwing(Level.ERROR, e);
             e.printStackTrace();
         }
     }
 
     private static void searchIssues() {
-        try {
-            //выводим тело ответа Жиры со списком тасок
-            issuesJSON = GetIssue.getIssue(urlSearch, authToken);
-            //парсим на объекты
-            issuesList = ParseJSON.issueList(issuesJSON); //парсим JSON и выводим поля списка тасок
-        } catch (IOException e) {
-            Log.debug(e);
-            e.printStackTrace();
-        }
+        //выводим тело ответа Жиры со списком тасок
+        issuesJSON = GetIssue.getIssue(urlSearch, authToken);
+        //парсим на объекты
+        issuesList = ParseJSON.issueList(issuesJSON); //парсим JSON и выводим поля списка тасок
         issuesListPreview = issuesList.getIssues(); //массив со списком полей (id, key) для всех тасок.
-        //дебаг логи
-        System.out.println("IssueList fields: " + issuesList.toString());
-        System.out.println("IssuePreview fields: " + issuesListPreview.toString());
+        log.trace("IssueList fields: {}", issuesList.toString());
+        log.trace("IssuePreview fields: {}", issuesListPreview.toString());
     }
 
 }

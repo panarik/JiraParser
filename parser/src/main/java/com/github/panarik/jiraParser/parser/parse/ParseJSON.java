@@ -1,20 +1,31 @@
 package com.github.panarik.jiraParser.parser.parse;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
 import com.github.panarik.jiraParser.parser.parse.search.IssueList;
-import okhttp3.Response;
+
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static com.fasterxml.jackson.databind.DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT;
 
 public class ParseJSON {
+    private static final Logger log = LogManager.getLogger();
+    private static IssueList issuesList; //список тасок
 
-    public static IssueList issueList(String jSON) throws JsonProcessingException {
+    public static IssueList issueList(String jSON) {
         ObjectMapper mapper = new ObjectMapper();
-        IssueList issuesList = mapper.readValue(jSON, IssueList.class); //список тасок
-        //дебаг логи
-        System.out.println("IssueList fields: " + issuesList.toString());
+        try {
+            issuesList = mapper.readValue(jSON, IssueList.class); //парсим список тасок из JSON
+        } catch (JsonProcessingException e) {
+            log.throwing(Level.ERROR, e);
+            e.printStackTrace();
+        }
+
+        log.trace("IssueList fields: {}", issuesList.toString());
         return issuesList;
     }
 
@@ -22,8 +33,7 @@ public class ParseJSON {
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT);
         IssueHistory issueHistory = mapper.readValue(jSON, IssueHistory.class); //список тасок
-        //дебаг логи
-        System.out.println("\nIssueHistory fields: " + issueHistory.toString());
+        log.trace("IssueHistory fields: {}", issueHistory.toString());
         return issueHistory;
     }
 
