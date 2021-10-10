@@ -1,11 +1,13 @@
 package com.github.panarik.jiraParser.parser;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.panarik.jiraParser.parser.http.GetIssue;
+import com.github.panarik.jiraParser.parser.parse.ParseJSON;
 import com.github.panarik.jiraParser.parser.parse.search.IssueList;
 import com.github.panarik.jiraParser.parser.parse.search.IssuePreview;
-import com.github.panarik.jiraParser.parser.parse.Parser;
 import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
 import com.github.panarik.jiraParser.parser.util.Config;
+import com.github.panarik.jiraParser.parser.util.Log;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
-public class Main implements GetIssue, Parser {
+public class Parser {
 
     //Поля запросов по API
     private static String GET = "GET"; //тип запроса
@@ -40,7 +42,7 @@ public class Main implements GetIssue, Parser {
     private static Connection connection;
     private static Statement statement;
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void run() {
 
 //        auth(); //ввод токена с консоли
         authFromFile(); //ввод токена из файла
@@ -57,7 +59,7 @@ public class Main implements GetIssue, Parser {
             int x; //складываем по символам токен в виде байтов
             StringBuilder s = new StringBuilder(); //строка с токеном
             while ((x = fis.read()) > -1) {
-                s.append((char)x);
+                s.append((char) x);
             }
             authToken = s.toString();
         } catch (FileNotFoundException e) {
@@ -207,22 +209,32 @@ public class Main implements GetIssue, Parser {
         }
     }
 
-    private static void getIssueHistory() throws IOException, InterruptedException {
+    private static void getIssueHistory() {
         //формируем URL запроса всех полей связанных с изменением каждой таски
         issueHistory = new ArrayList<>();
-        for (IssuePreview issuePreview : issuesListPreview) {
-            issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
-            //парсим на объекты
-            issueHistory.add(Parser.parseIssueHistory(issueHistoryJSON)); //парсим JSON и выводим поля истории каждой таски
-            Thread.sleep(100);
+        try {
+            for (IssuePreview issuePreview : issuesListPreview) {
+                issueHistoryJSON = GetIssue.getIssue((URLGETTASK + issuePreview.getKey()) + "/changelog?startAt=0&maxResults=100", authToken); //формируем URL запроса таски с KEY каждой таски и складываем результат в String
+                //парсим на объекты
+                issueHistory.add(ParseJSON.issueHistory(issueHistoryJSON)); //парсим JSON и выводим поля истории каждой таски
+                Thread.sleep(100);
+            }
+        } catch (InterruptedException | JsonProcessingException e) {
+            Log.debug(e);
+            e.printStackTrace();
         }
     }
 
-    private static void searchIssues() throws IOException {
-        //выводим тело ответа Жиры со списком тасок
-        issuesJSON = GetIssue.getIssue(urlSearch, authToken);
-        //парсим на объекты
-        issuesList = Parser.parseIssueList(issuesJSON); //парсим JSON и выводим поля списка тасок
+    private static void searchIssues() {
+        try {
+            //выводим тело ответа Жиры со списком тасок
+            issuesJSON = GetIssue.getIssue(urlSearch, authToken);
+            //парсим на объекты
+            issuesList = ParseJSON.issueList(issuesJSON); //парсим JSON и выводим поля списка тасок
+        } catch (IOException e) {
+            Log.debug(e);
+            e.printStackTrace();
+        }
         issuesListPreview = issuesList.getIssues(); //массив со списком полей (id, key) для всех тасок.
         //дебаг логи
         System.out.println("IssueList fields: " + issuesList.toString());
