@@ -1,6 +1,7 @@
 package com.github.panarik.jiraParser.parser;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.panarik.jiraParser.parser.database.IssueDataBase;
 import com.github.panarik.jiraParser.parser.http.GetIssue;
 import com.github.panarik.jiraParser.parser.parse.ParseJSON;
 import com.github.panarik.jiraParser.parser.parse.search.IssueList;
@@ -43,21 +44,72 @@ public class Parser {
     //каждая таска (история изменения таски)
     private static String issueHistoryJSON; //JSON с полями таски (история изменения таски)
     private static List<IssueHistory> issueHistory; //массив объектов с полями тасок (история изменения таски)
-    private static String key; //поле таски
+    private static String key; //поле (KEY) таски
 
-    //DB поля клиента sqlite
-    private static Connection connection;
-    private static Statement statement;
+    private static IssueDataBase issueBase;
 
     public static void run() {
 
-//        auth(); //ввод токена с консоли
         authFromFile(); //ввод токена из файла
         searchIssues(); //получаем из API Jira все таски
-
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
-        putIssuesOnDatabase(); //создаём БД со всеми тасками
-        putIssueHistoryOnDatabase(); //создаём БД со всеми полями истории каждой таски
+
+        issueBase = new IssueDataBase(); //create database
+        issueBase.createSearchTable();
+
+
+        /*
+
+        //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
+        for (int i = 0; i < issuesListPreview.size(); i++) {
+            String id = issuesList.getIssues().get(i).getId(); //id таски в Жире
+            String key = issuesList.getIssues().get(i).getKey(); //наименование таски в Жире
+//                dataBase.insertSearchTable(i + 1, id, key);
+        }
+
+
+        int id = 0; //устанавливаем начальное id для таблицы с историей тасок
+        //отправляет список тасок в БД (таблица search)
+        issueBase = new IssueDataBase();
+        issueBase.createHistoryTable(); //коннектимся или создаём БД
+
+        for (int i = 0; i < issueHistory.size(); i++) {
+            key = cutKey(issueHistory.get(i).getSelf()); //получаем и обрезаем поле KEY текущей таски
+            //выясняем сколько элементов истории (value полей) есть у каждой таски
+            int thisValues = issueHistory.get(i).getValues().size();
+            //вытаскиваем все нужные поля из каждого value поля таски
+            for (int j = 0; j < thisValues; j++) {
+                String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getDisplayName(); //получаем пользователя
+                String thisValueCreated = issueHistory.get(i).getValues().get(j).getCreated(); //получаем дату изменения поля таски
+                //извлекаем измененные пользователем поля
+                int valueItems = issueHistory.get(i).getValues().get(j).getItems().size(); //узнаем сколько полей пользователь изменил
+                for (int k = 0; k < valueItems; k++) {
+                    String thisValueField = issueHistory.get(i).getValues().get(j).getItems().get(k).getField(); //получаем тип меняемого пользователем поля таски
+                    String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString(); //получаем исходное состояние поля таски
+                    String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString(); //получаем конечное состояние поля таски
+
+                    log.trace("Task History: Key:{}, Author:{}, Created:{}, Field:{}, From:{}, To:{}", key, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
+
+                    //заполняем полученные данные в табличку
+                    id++;
+//                        statement.executeUpdate("insert into history" +
+//                                "(id, key, authorDisplayName, created, field, fromString, toString) " +
+//                                "values(" +
+//                                "'" + id + "', " +
+//                                "'" + key + "', " +
+//                                "'" + thisValueAuthor + "', " +
+//                                "'" + thisValueCreated + "', " +
+//                                "'" + thisValueField + "', " +
+//                                "'" + thisValueFieldFrom + "', " +
+//                                "'" + thisValueFieldTo + "'" +
+//                                ");");
+                }
+            }
+        }
+        log.info("PARSER - work has complete, add {} tasks to database", 0);
+
+
+         */
     }
 
     private static void authFromFile() {
@@ -75,52 +127,6 @@ public class Parser {
         }
     }
 
-    private static void putIssueHistoryOnDatabase() {
-        int id = 0; //устанавливаем начальное id для таблицы с историей тасок
-        //отправляет список тасок в БД (таблица search)
-        try {
-            connectIssueHistoryDB(); //коннектимся или создаём БД
-            clearDB("history"); //очищаем все строки в таблице "search"
-            for (int i = 0; i < issueHistory.size(); i++) {
-                key = cutKey(issueHistory.get(i).getSelf()); //получаем и обрезаем поле KEY текущей таски
-                //выясняем сколько элементов истории (value полей) есть у каждой таски
-                int thisValues = issueHistory.get(i).getValues().size();
-                //вытаскиваем все нужные поля из каждого value поля таски
-                for (int j = 0; j < thisValues; j++) {
-                    String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getDisplayName(); //получаем пользователя
-                    String thisValueCreated = issueHistory.get(i).getValues().get(j).getCreated(); //получаем дату изменения поля таски
-                    //извлекаем измененные пользователем поля
-                    int valueItems = issueHistory.get(i).getValues().get(j).getItems().size(); //узнаем сколько полей пользователь изменил
-                    for (int k = 0; k < valueItems; k++) {
-                        String thisValueField = issueHistory.get(i).getValues().get(j).getItems().get(k).getField(); //получаем тип меняемого пользователем поля таски
-                        String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString(); //получаем исходное состояние поля таски
-                        String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString(); //получаем конечное состояние поля таски
-
-                        log.trace("Task History: Key:{}, Author:{}, Created:{}, Field:{}, From:{}, To:{}", key, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
-                        //заполняем полученные данные в табличку
-                        id++;
-                        statement.executeUpdate("insert into history" +
-                                "(id, key, authorDisplayName, created, field, fromString, toString) " +
-                                "values(" +
-                                "'" + id + "', " +
-                                "'" + key + "', " +
-                                "'" + thisValueAuthor + "', " +
-                                "'" + thisValueCreated + "', " +
-                                "'" + thisValueField + "', " +
-                                "'" + thisValueFieldFrom + "', " +
-                                "'" + thisValueFieldTo + "'" +
-                                ");");
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            log.throwing(Level.ERROR, e);
-        } finally {
-            disconnect();
-        }
-        log.info("PARSER - work has complete, add {} tasks to database", issuesList.getIssues().size());
-    }
-
     private static String cutKey(String string) {
         log.trace("String with KEY: {}", string);
         StringBuilder builder = new StringBuilder(string);
@@ -131,78 +137,15 @@ public class Parser {
         return builder.toString();
     }
 
-    private static void connectIssueHistoryDB() throws SQLException {
-        //create DB with
-        connection = DriverManager.getConnection("jdbc:sqlite:jiraIssues.db");
-        statement = connection.createStatement();
-        //create table if its not exist
-        statement.execute("create table if not exists history (" +
-                "id integer primary key," +
-                "key text, " +
-                "authorDisplayName text, " +
-                "created text, " +
-                "field text, " +
-                "fromString text, " +
-                "toString text);"); //таблица с историей изменения каждой таски
-    }
-
-    private static void putIssuesOnDatabase() {
-        //отправляет список тасок в БД (таблица search)
-        try {
-            connectIssuesDB(); //коннектимся или создаём БД
-            clearDB("search"); //очищаем все строки в таблице "search"
-            //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
-            for (int i = 0; i < issuesListPreview.size(); i++) {
-                putIssuesIntoSearchTable(
-                        i + 1, //id в таблице
-                        issuesList.getIssues().get(i).getId(), //id таски в Жире
-                        issuesList.getIssues().get(i).getKey()); //наименование таски в Жире
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            disconnect();
-        }
-    }
-
     private static void clearDB(String tableName) throws SQLException {
-        statement.executeUpdate("delete from " + tableName + ";");
+        issueBase.getStatement().executeUpdate("delete from " + tableName + ";");
     }
-
-    private static void putIssuesIntoSearchTable(int id, String jid, String key) throws SQLException {
-        statement.executeUpdate("insert into search (id, jid, key) values('" + id + "', '" + jid + "', '" + key + "');");
-    }
-
-    private static void disconnect() {
-        try {
-            if (connection != null) connection.close();
-            if (statement != null) statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void connectIssuesDB() throws SQLException {
-        //create DB with
-        connection = DriverManager.getConnection("jdbc:sqlite:jiraIssues.db");
-        statement = connection.createStatement();
-        //create table if its not exist
-        statement.execute("create table if not exists search (id integer primary key, jid text, key text);"); //таблица со списком всех тасок
-    }
-
-    private static void auth() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Insert Your Token>>>>>>");
-        tokenAuth = scanner.next();
-    }
-
 
     private static void getIssues() throws IOException, InterruptedException {
         //формируем URL запроса всех полей каждой таски
         for (IssuePreview issuePreview : issuesListPreview) {
             GetIssue.getIssue((URLGETTASK + issuePreview.getKey()), tokenAuth); //формируем URL запроса таски с KEY каждой таски
             Thread.sleep(100);
-            //ToDo делаем запись всех приходящих JSON в объекты
         }
     }
 
@@ -231,5 +174,4 @@ public class Parser {
         log.trace("IssueList fields: {}", issuesList.toString());
         log.trace("IssuePreview fields: {}", issuesListPreview.toString());
     }
-
 }
