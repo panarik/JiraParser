@@ -1,6 +1,5 @@
 package com.github.panarik.jiraParser.parser.http;
 
-import com.github.panarik.jiraParser.parser.util.Log;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;

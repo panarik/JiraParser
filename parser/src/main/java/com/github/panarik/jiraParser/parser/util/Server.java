@@ -1,5 +1,6 @@
 package com.github.panarik.jiraParser.parser.util;
 
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -31,8 +32,8 @@ public class Server {
             serverSocket = new ServerSocket(PORT);
             log.debug("Server started on port: {}", PORT);
         } catch (IOException e) {
+            log.throwing(Level.ERROR, e);
             e.printStackTrace();
-            Log.debug(e.getMessage());
             try {
                 serverSocket.close();
             } catch (IOException j) {
