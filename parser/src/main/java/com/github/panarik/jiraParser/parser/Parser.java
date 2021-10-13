@@ -39,7 +39,6 @@ public class Parser {
     //каждая таска (история изменения таски)
     private static String issueHistoryJSON; //JSON с полями таски (история изменения таски)
     private static List<IssueHistory> issueHistory; //массив объектов с полями тасок (история изменения таски)
-    private static String key; //поле (KEY) таски
 
     private static IssueDataBase issueBase;
     private static final String BASE_PATH = "jiraIssues.db";
@@ -58,41 +57,7 @@ public class Parser {
             issueBase.insertTable("search",i + 1, id, key);
         }
 
-
-        //ToDo: починить
-        int id = 0;
-        for (int i = 0; i < issueHistory.size(); i++) {
-            key = cutKey(issueHistory.get(i).getSelf()); //получаем и обрезаем поле KEY текущей таски
-            //выясняем сколько элементов истории (value полей) есть у каждой таски
-            int thisValues = issueHistory.get(i).getValues().size();
-            //вытаскиваем все нужные поля из каждого value поля таски
-            for (int j = 0; j < thisValues; j++) {
-                String thisValueAuthor = issueHistory.get(i).getValues().get(j).getAuthor().getDisplayName(); //получаем пользователя
-                String thisValueCreated = issueHistory.get(i).getValues().get(j).getCreated(); //получаем дату изменения поля таски
-                //извлекаем измененные пользователем поля
-                int valueItems = issueHistory.get(i).getValues().get(j).getItems().size(); //узнаем сколько полей пользователь изменил
-                for (int k = 0; k < valueItems; k++) {
-                    String thisValueField = issueHistory.get(i).getValues().get(j).getItems().get(k).getField(); //получаем тип меняемого пользователем поля таски
-                    String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString(); //получаем исходное состояние поля таски
-                    String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString(); //получаем конечное состояние поля таски
-                    log.trace("Task History: Key:{}, Author:{}, Created:{}, Field:{}, From:{}, To:{}", key, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
-                    //заполняем полученные данные в табличку
-                    id++;
-//                        statement.executeUpdate("insert into history" +
-//                                "(id, key, authorDisplayName, created, field, fromString, toString) " +
-//                                "values(" +
-//                                "'" + id + "', " +
-//                                "'" + key + "', " +
-//                                "'" + thisValueAuthor + "', " +
-//                                "'" + thisValueCreated + "', " +
-//                                "'" + thisValueField + "', " +
-//                                "'" + thisValueFieldFrom + "', " +
-//                                "'" + thisValueFieldTo + "'" +
-//                                ");");
-                }
-            }
-        }
-        log.info("PARSER - work has complete, add {} tasks to database", 0);
+        issueBase.putHistory(issueHistory);
     }
 
     private static void authFromFile() {
@@ -110,15 +75,7 @@ public class Parser {
         }
     }
 
-    private static String cutKey(String string) {
-        log.trace("String with KEY: {}", string);
-        StringBuilder builder = new StringBuilder(string);
-        builder.delete(0, 48); //удаляем URL до значения KEY
-        int length = builder.length();
-        builder.delete(length - 35, length); //удаляем параметры после значения KEY
-        log.trace("String with KEY: {}", builder.toString());
-        return builder.toString();
-    }
+
 
     private static void getIssues() throws IOException, InterruptedException {
         //формируем URL запроса всех полей каждой таски
@@ -129,7 +86,7 @@ public class Parser {
     }
 
     private static void getIssueHistory() {
-        //формируем URL запроса всех полей связанных с изменением каждой таски
+        //формируем URL запрос всех полей связанных с изменением каждой таски
         issueHistory = new ArrayList<>();
         try {
             for (IssuePreview issuePreview : issuesListPreview) {
