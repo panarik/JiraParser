@@ -1,4 +1,4 @@
-package com.github.panarik.jiraParser.parser;
+package com.github.panarik.jiraParser.parser.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.panarik.jiraParser.parser.database.IssueDataBase;
