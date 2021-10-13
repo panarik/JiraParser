@@ -1,6 +1,7 @@
 package com.github.panarik.jiraParser.parser.database;
 
 import com.github.panarik.jiraParser.parser.parse.history.IssueHistory;
+import com.github.panarik.jiraParser.parser.parse.search.IssueList;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,6 +70,17 @@ public class IssueDataBase {
             }
         }
         log.info("added {} items to history table", items.size());
+    }
+
+    public void putSearch(IssueList issuesList)  {
+        Map<String, String> items = new HashMap();
+        for (int i = 0; i < issuesList.getIssues().size(); i++) {
+            Integer id = i+1;
+            items.put("id", id.toString());
+            items.put("jid", issuesList.getIssues().get(i).getId()); //id таски в Jira
+            items.put("key", issuesList.getIssues().get(i).getKey()); //наименование таски в Jira
+            insertTable("search",items);
+        }
     }
 
     public void insertTable(String table, Map queryItems) {

@@ -23,8 +23,6 @@ public class Parser {
     private static final Logger log = LogManager.getLogger();
 
     //Поля запросов по API
-    private static String GET = "GET"; //тип запроса
-    private static String URL = "https://panariks.atlassian.net";
     private static String urlSearch = "https://panariks.atlassian.net/rest/api/2/search?jql=project=TEST&fields=issue&startAt=0&maxResults=8000";
     private static String URLGETTASK = "https://panariks.atlassian.net/rest/api/2/issue/";
     //поля авторизации
@@ -41,7 +39,6 @@ public class Parser {
     private static List<IssueHistory> issueHistory; //массив объектов с полями тасок (история изменения таски)
 
     private static IssueDataBase issueBase;
-    private static final String BASE_PATH = "jiraIssues.db";
 
     public static void run() {
         authFromFile(); //ввод токена из файла
@@ -49,14 +46,7 @@ public class Parser {
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
 
         issueBase = new IssueDataBase(); //create clear database with tables
-
-        //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
-        for (int i = 0; i < issuesListPreview.size(); i++) {
-            String id = issuesList.getIssues().get(i).getId(); //id таски в Жире
-            String key = issuesList.getIssues().get(i).getKey(); //наименование таски в Жире
-            issueBase.insertTable("search",i + 1, id, key);
-        }
-
+        issueBase.putSearch(issuesList);
         issueBase.putHistory(issueHistory);
     }
 
@@ -72,16 +62,6 @@ public class Parser {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-
-
-    private static void getIssues() throws IOException, InterruptedException {
-        //формируем URL запроса всех полей каждой таски
-        for (IssuePreview issuePreview : issuesListPreview) {
-            GetIssue.getIssue((URLGETTASK + issuePreview.getKey()), tokenAuth); //формируем URL запроса таски с KEY каждой таски
-            Thread.sleep(100);
         }
     }
 
