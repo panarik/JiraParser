@@ -14,13 +14,8 @@ import org.apache.logging.log4j.Logger;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class Parser {
 
@@ -47,32 +42,25 @@ public class Parser {
     private static String key; //поле (KEY) таски
 
     private static IssueDataBase issueBase;
+    private static final String BASE_PATH = "jiraIssues.db";
 
     public static void run() {
-
         authFromFile(); //ввод токена из файла
         searchIssues(); //получаем из API Jira все таски
         getIssueHistory(); //получаем из API Jira все поля истории каждой таски
 
-        issueBase = new IssueDataBase(); //create database
-        issueBase.createSearchTable();
-
-
-        /*
+        issueBase = new IssueDataBase(); //create clear database with tables
 
         //проходим по списку всех тасок, выдергиваем из них поля (id, key) и помещаем в таблицу с тасками
         for (int i = 0; i < issuesListPreview.size(); i++) {
             String id = issuesList.getIssues().get(i).getId(); //id таски в Жире
             String key = issuesList.getIssues().get(i).getKey(); //наименование таски в Жире
-//                dataBase.insertSearchTable(i + 1, id, key);
+            issueBase.insertTable("search",i + 1, id, key);
         }
 
 
-        int id = 0; //устанавливаем начальное id для таблицы с историей тасок
-        //отправляет список тасок в БД (таблица search)
-        issueBase = new IssueDataBase();
-        issueBase.createHistoryTable(); //коннектимся или создаём БД
-
+        //ToDo: починить
+        int id = 0;
         for (int i = 0; i < issueHistory.size(); i++) {
             key = cutKey(issueHistory.get(i).getSelf()); //получаем и обрезаем поле KEY текущей таски
             //выясняем сколько элементов истории (value полей) есть у каждой таски
@@ -87,9 +75,7 @@ public class Parser {
                     String thisValueField = issueHistory.get(i).getValues().get(j).getItems().get(k).getField(); //получаем тип меняемого пользователем поля таски
                     String thisValueFieldFrom = issueHistory.get(i).getValues().get(j).getItems().get(k).getFromString(); //получаем исходное состояние поля таски
                     String thisValueFieldTo = issueHistory.get(i).getValues().get(j).getItems().get(k).getToString(); //получаем конечное состояние поля таски
-
                     log.trace("Task History: Key:{}, Author:{}, Created:{}, Field:{}, From:{}, To:{}", key, thisValueAuthor, thisValueCreated, thisValueField, thisValueFieldFrom, thisValueFieldTo);
-
                     //заполняем полученные данные в табличку
                     id++;
 //                        statement.executeUpdate("insert into history" +
@@ -107,9 +93,6 @@ public class Parser {
             }
         }
         log.info("PARSER - work has complete, add {} tasks to database", 0);
-
-
-         */
     }
 
     private static void authFromFile() {
@@ -135,10 +118,6 @@ public class Parser {
         builder.delete(length - 35, length); //удаляем параметры после значения KEY
         log.trace("String with KEY: {}", builder.toString());
         return builder.toString();
-    }
-
-    private static void clearDB(String tableName) throws SQLException {
-        issueBase.getStatement().executeUpdate("delete from " + tableName + ";");
     }
 
     private static void getIssues() throws IOException, InterruptedException {

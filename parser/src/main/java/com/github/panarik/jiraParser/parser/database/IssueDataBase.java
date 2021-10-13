@@ -1,9 +1,11 @@
 package com.github.panarik.jiraParser.parser.database;
 
+import com.sun.jdi.connect.Connector;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -13,47 +15,33 @@ public class IssueDataBase {
 
     private static final String CREATE_HISTORY_TABLE = "create table if not exists history (id integer primary key, key text, authorDisplayName text, created text, field text, fromString text, toString text);";
     private static final String CREATE_SEARCH_TABLE = "create table if not exists search (id integer primary key, jid text, key text);";
-    private static final String FILE_PATH = "jdbc:sqlite:jiraIssues.db";
+    private static final String BASE_NAME = "jdbc:sqlite:jiraIssues.db";
+
     private Connection connection;
     private Statement statement;
 
     private static final Logger log = LogManager.getLogger();
 
+    //connect database
     public IssueDataBase() {
         try {
-            this.connection = DriverManager.getConnection(FILE_PATH);
+            this.connection = DriverManager.getConnection(BASE_NAME);
             this.statement = connection.createStatement(); //connect to database
-        } catch (SQLException e) {
-            log.throwing(Level.ERROR, e);
-            e.printStackTrace();
-        }
-    }
-
-    public Statement getStatement() {
-        return this.statement;
-    }
-
-    public void createSearchTable() {
-        try {
-            this.statement.execute(CREATE_SEARCH_TABLE); //create table if it's not exist
-        } catch (SQLException e) {
-            log.throwing(Level.ERROR, e);
-            e.printStackTrace();
-        }
-    }
-
-    public void createHistoryTable() {
-        try {
+            //create tables
+            this.statement.execute(CREATE_SEARCH_TABLE);
             this.statement.execute(CREATE_HISTORY_TABLE);
+            //clear tables
+            statement.executeUpdate("delete from search;");
+            statement.executeUpdate("delete from history;");
         } catch (SQLException e) {
             log.throwing(Level.ERROR, e);
             e.printStackTrace();
         }
     }
 
-    public void insertSearchTable(int id, String jid, String key) {
+    public void insertTable(String table, int id, String jid, String key) {
         try {
-            this.statement.executeUpdate("insert into search (id, jid, key) values('" + id + "', '" + jid + "', '" + key + "');");
+            this.statement.executeUpdate("insert into search (id, jid, key) values(" + id + ", '" + jid + "', '" + key + "');");
         } catch (SQLException e) {
             log.throwing(Level.ERROR, e);
             e.printStackTrace();
@@ -69,5 +57,4 @@ public class IssueDataBase {
             e.printStackTrace();
         }
     }
-
 }
